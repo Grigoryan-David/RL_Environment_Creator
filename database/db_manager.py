@@ -141,7 +141,7 @@ class DatabaseManager:
                 e.board_size, 
                 e.obstacle_position,
                 e.start, 
-                e.end,
+                e.end
             FROM environments e
             LEFT JOIN (
                 SELECT 
