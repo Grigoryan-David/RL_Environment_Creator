@@ -1,0 +1,7 @@
+bottle~=0.13.2
+bcrypt~=4.2.0
+pytest
+black
+numpy~=2.2.0
+
+colorama~=0.4.6
