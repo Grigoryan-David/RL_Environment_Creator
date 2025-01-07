@@ -1,8 +1,7 @@
 import ast
-import time
 
 from config.config import DEFAULT_CONFIG
-from environment.agent import QLearningAgent
+from environment.agent import QLearningAgent, SarsaAgent
 from environment.rl_environment import Environment
 
 
@@ -181,7 +180,16 @@ class ConsoleInterface:
                 print(f"State space size: {state_space_size}")
                 action_space_size = len(env.action_space)
                 print(f"Action space size: {action_space_size}")
-                agent = QLearningAgent(state_space_size, action_space_size)
+                while True:
+                    algorithm_index = int(input("Input 1 for Q-Learning or 2 for SARSA: "))
+                    if algorithm_index == 1:
+                        agent = QLearningAgent(state_space_size, action_space_size)
+                        break
+                    elif algorithm_index == 2:
+                        agent = SarsaAgent(state_space_size, action_space_size)
+                        break
+                    else:
+                        print("Invalid selection. Please input 1 or 2")
 
                 # Train the agent silently
                 print(f"Training the agent on environment ID {environment_id}...")

@@ -60,3 +60,68 @@ class QLearningAgent:
         Select the best action for a given state based on the Q-table.
         """
         return np.argmax(self.q_table[state, :])
+
+class SarsaAgent:
+    def __init__(self, state_space_size, action_space_size=len(DEFAULT_CONFIG['action_space']), learning_rate=0.3,
+                 gamma=0.99, epsilon=1, decay_rate=0.001):
+        self.q_table = np.zeros((state_space_size, action_space_size))
+        self.learning_rate = learning_rate
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.decay_rate = decay_rate
+        self.max_epsilon = 1
+        self.min_epsilon = 0.01
+        self.action_space_size = action_space_size
+
+    def train(self, env, total_episodes=None, max_steps_per_episode=None):
+        """
+        Train the SARSA agent in the given environment.
+        """
+        if total_episodes is None:
+            total_episodes = int((env.board_size[0] * env.board_size[1]) / 16 * self.action_space_size * 1000)
+        if max_steps_per_episode is None:
+            max_steps_per_episode = env.board_size[0] * env.board_size[1]
+
+        self.q_table = np.zeros_like(self.q_table)
+        for episode in range(total_episodes):
+            state = env.reset()
+            action_index = self._choose_action(state, env)
+
+            for step in range(max_steps_per_episode):
+                action = env.action_space[action_index]
+                next_state, reward, done = env.step(action)
+                next_action_index = self._choose_action(next_state, env)
+
+                # Update Q-value using SARSA formula
+                self.q_table[state, action_index] += self.learning_rate * (
+                        reward + self.gamma * self.q_table[next_state, next_action_index] -
+                        self.q_table[state, action_index]
+                )
+
+                if done:
+                    break
+
+                state = next_state
+                action_index = next_action_index
+
+
+# Decay epsilon after each episode
+            self.epsilon = max(
+                self.min_epsilon,
+                self.max_epsilon * np.exp(-self.decay_rate * episode)
+            )
+
+    def _choose_action(self, state, env):
+        """
+        Choose an action using epsilon-greedy policy.
+        """
+        if random.random() > self.epsilon:
+            return np.argmax(self.q_table[state, :])
+        else:
+            return random.randint(0, len(env.action_space) - 1)
+
+    def select_action(self, state):
+        """
+        Select the best action for a given state based on the Q-table.
+        """
+        return np.argmax(self.q_table[state, :])
